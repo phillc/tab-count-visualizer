@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { Storage } from "@plasmohq/storage"
 import "../style.css"
 
 import {
@@ -30,7 +31,8 @@ export const chartOptions = {
 function IndexNewtab() {
   const [tabsNow, setTabsNow] = useState<any>()
   const [windowsNow, setWindowsNow] = useState<any>()
-  const [dateData, setDateData] = useState<any>()
+  const [history, setHistory] = useState<any>()
+
   useEffect(() => {
     const fetch = async () => {
       const windows = await chrome.windows.getAll({populate: true});
@@ -38,24 +40,24 @@ function IndexNewtab() {
       const tabs = await chrome.tabs.query({windowType:'normal'});
       setTabsNow(tabs);
 
-      const data = JSON.parse(localStorage.getItem('app')) || {};
-
+      const storage = new Storage();
+      const data = await storage.get('history') || {};
       const today = new Date().toJSON().slice(0, 10);
       data[today] = data[today] || {maxTabs: 0, maxWindows: 0}
       data[today].maxTabs = Math.max(tabs.length, data[today].maxTabs);
       data[today].maxWindows = Math.max(windows.length, data[today].maxWindows);
 
-      localStorage.setItem('app', JSON.stringify(data));
-      setDateData(data);
+      await storage.set('history', data)
+      setHistory(data);
     }
     fetch();
   }, []);
 
-  const chartData: ChartData = dateData && Object.keys(dateData).length > 1 && {
-    labels: Object.keys(dateData),
+  const chartData: ChartData = history && Object.keys(history).length > 1 && {
+    labels: Object.keys(history),
     datasets: [{
       label: "tabs",
-      data: Object.values(dateData).map((v: any) => v.maxTabs)
+      data: Object.values(history).map((v: any) => v.maxTabs)
     }]
   }
 
@@ -87,7 +89,6 @@ function IndexNewtab() {
         <div className="mt-8 col-start-3 col-span-3">
           {chartData &&
             <Line options={chartOptions} data={chartData} />
-            // JSON.stringify(chartData)
           }
         </div>
       </div>
