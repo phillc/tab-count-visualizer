@@ -30,8 +30,8 @@
     "typescript": "4.9.4"
   },
   "manifest": {
-    "host_permissions": [
-      "https://*/*"
+    "permissions": [
+      "tabs"
     ]
   }
 }

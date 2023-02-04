@@ -31,6 +31,7 @@ export const chartOptions = {
 function IndexNewtab() {
   const [tabsNow, setTabsNow] = useState<any>()
   const [windowsNow, setWindowsNow] = useState<any>()
+  const [suggestedTabs, setSuggestedTabs] = useState<any>([])
   const [history, setHistory] = useState<any>()
 
   useEffect(() => {
@@ -39,6 +40,13 @@ function IndexNewtab() {
       setWindowsNow(windows);
       const tabs = await chrome.tabs.query({windowType:'normal'});
       setTabsNow(tabs);
+      const closable = tabs
+        .filter(tab => !tab.pinned && !tab.active) 
+        .map(value => ({ value, sort: Math.random() }))
+        .sort((a, b) => a.sort - b.sort)
+        .map(({ value }) => value)
+        .slice(0, 3)
+      setSuggestedTabs(closable);
 
       const storage = new Storage();
       const data = await storage.get('history') || {};
@@ -71,6 +79,41 @@ function IndexNewtab() {
       )
     }
   }
+  const suggest = () => {
+    if(suggestedTabs.length <= 1) {
+      return;
+    }
+    const handleTabClick = async (e, tab) => {
+      e.preventDefault();
+      await chrome.tabs.update(tab.id, { active: true });
+      await chrome.windows.update(tab.windowId, { focused: true });
+    }
+
+    return (
+      <>
+      <h4>Try closing one of these: </h4>
+        <ul>
+          {suggestedTabs.map((tab, i) =>
+            <li key={i} className="my-3">
+              <a
+                href=""
+                onClick={event =>
+                  handleTabClick(event, tab)
+                }
+                style={{ 
+                  backgroundImage: `url("${tab.favIconUrl}")`
+                }}
+                className="p-0.5 pl-7 font-medium hover:underline bg-slate-200 rounded-full bg-no-repeat bg-left bg-contain"
+              >
+                {/* { tab.favIconUrl && <img src={tab.favIconUrl} /> } */}
+                {tab.title}
+              </a>
+            </li>
+          )}
+        </ul>
+      </>
+    )
+  }
   return (
     <div className="container mx-auto">
       <h2 className="text-center text-xl mt-10 mb-10">You have</h2>
@@ -85,6 +128,9 @@ function IndexNewtab() {
           <div className="shadow-xl w-64 h-64 bg-gradient-to-b from-blue-500 to-cyan-500">
             {badge("windows", windowsNow)}
           </div>
+        </div>
+        <div className="mt-8 col-start-3 col-span-3">
+          {suggest()}
         </div>
         <div className="mt-8 col-start-3 col-span-3">
           {chartData &&
