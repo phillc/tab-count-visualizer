@@ -1,0 +1,31 @@
+{
+  "name": "tab-creep",
+  "displayName": "Tab creep",
+  "version": "0.0.1",
+  "description": "Keep an eye out for tab creep",
+  "author": "phillc",
+  "scripts": {
+    "dev": "plasmo dev",
+    "build": "plasmo build",
+    "package": "plasmo package"
+  },
+  "dependencies": {
+    "plasmo": "0.64.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "@plasmohq/prettier-plugin-sort-imports": "3.6.1",
+    "@types/chrome": "0.0.210",
+    "@types/node": "18.11.18",
+    "@types/react": "18.0.27",
+    "@types/react-dom": "18.0.10",
+    "prettier": "2.8.3",
+    "typescript": "4.9.4"
+  },
+  "manifest": {
+    "host_permissions": [
+      "https://*/*"
+    ]
+  }
+}
