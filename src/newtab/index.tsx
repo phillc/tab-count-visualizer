@@ -208,7 +208,8 @@ function IndexNewtab() {
         </div>
         <div className="mt-8 col-start-3 col-span-3">
           {chartData &&
-            <Line options={chartOptions} data={chartData} />
+            <Line options={chartOptions} data={chartData} /> ||
+            <p>Check back tomorrow for the chart</p>
           }
         </div>
       </div>
