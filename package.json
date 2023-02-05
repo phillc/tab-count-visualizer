@@ -1,8 +1,8 @@
 {
   "name": "tab-count-visualizer",
-  "displayName": "Tab count visualizer",
+  "displayName": "Tab Count Visualizer",
   "version": "0.0.1",
-  "description": "Tab count visualizer helps you see how many tabs you have open currently, and encourages you to reduce that number.",
+  "description": "Tab Count Visualizer helps you see how many tabs you have open currently, and encourages you to reduce that number.",
   "author": "phillc",
   "scripts": {
     "dev": "plasmo dev",
