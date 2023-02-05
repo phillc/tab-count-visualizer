@@ -1,8 +1,8 @@
 {
-  "name": "tab-creep",
-  "displayName": "Tab creep",
+  "name": "tab-count-visualizer",
+  "displayName": "Tab count visualizer",
   "version": "0.0.1",
-  "description": "Keep an eye out for tab creep",
+  "description": "Tab count visualizer helps you see how many tabs you have open currently, and encourages you to reduce that number.",
   "author": "phillc",
   "scripts": {
     "dev": "plasmo dev",
