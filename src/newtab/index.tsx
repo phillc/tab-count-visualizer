@@ -41,11 +41,11 @@ export const chartOptions = {
   },
   scales: {
     x: {
-        type: 'timeseries',
-        time: {
-            unit: 'day',
-            tooltipFormat: 'yyyy-MM-dd',
-        }
+      type: 'timeseries',
+      time: {
+        unit: 'day',
+        tooltipFormat: 'yyyy-MM-dd',
+      }
     },
     y1: {
       type: 'linear' as const,
@@ -66,6 +66,28 @@ export const chartOptions = {
   },
 };
 
+const TabLink = ({ title, tab }) => {
+  const handleTabClick = async (e, tab) => {
+    e.preventDefault();
+    await chrome.tabs.update(tab.id, { active: true });
+    await chrome.windows.update(tab.windowId, { focused: true });
+  }
+  return (
+    <a
+      href=""
+      onClick={event =>
+        handleTabClick(event, tab)
+      }
+      style={{
+        backgroundImage: `url("${tab.favIconUrl}")`
+      }}
+      className="p-0.5 pl-7 pr-2 font-medium hover:underline bg-slate-200 rounded-full bg-no-repeat bg-left bg-contain"
+    >
+      {title}
+    </a>
+  )
+}
+
 function IndexNewtab() {
   const [tabsNow, setTabsNow] = useState<any>()
   const [windowsNow, setWindowsNow] = useState<any>()
@@ -74,12 +96,12 @@ function IndexNewtab() {
 
   useEffect(() => {
     const fetch = async () => {
-      const windows = await chrome.windows.getAll({populate: true});
+      const windows = await chrome.windows.getAll({ populate: true });
       setWindowsNow(windows);
-      const tabs = await chrome.tabs.query({windowType:'normal'});
+      const tabs = await chrome.tabs.query({ windowType: 'normal' });
       setTabsNow(tabs);
       const closable = tabs
-        .filter(tab => !tab.pinned && !tab.active) 
+        .filter(tab => !tab.pinned && !tab.active)
         .map(value => ({ value, sort: Math.random() }))
         .sort((a, b) => a.sort - b.sort)
         .map(({ value }) => value)
@@ -106,7 +128,7 @@ function IndexNewtab() {
       //   maxWindows: 3
       // }
       const today = new Date().toJSON().slice(0, 10);
-      data[today] = data[today] || {maxTabs: 0, maxWindows: 0}
+      data[today] = data[today] || { maxTabs: 0, maxWindows: 0 }
       data[today].maxTabs = Math.max(tabs.length, data[today].maxTabs);
       data[today].maxWindows = Math.max(windows.length, data[today].maxWindows);
 
@@ -144,8 +166,28 @@ function IndexNewtab() {
     }
   }
 
+  let repeatTabs = [];
+  if (tabsNow && tabsNow.length) {
+    const tabsByUrl = tabsNow.reduce((acc, tab) => {
+      if (tab.url) {
+        acc[tab.url] = acc[tab.url] || { tab: tab, count: 0 }
+        acc[tab.url].count++;
+      }
+      return acc
+    }, {})
+    repeatTabs = Object.entries(tabsByUrl)
+      .reduce((acc, tuple: any) => {
+        if (tuple[1].count > 1) {
+          acc.push(tuple[1]);
+        }
+        return acc;
+      }, [])
+      .sort((a: any, b: any) => b.count - a.count)
+      .slice(0, 3)
+  }
+
   const badge = (title, collection) => {
-    if(collection && collection.length) {
+    if (collection && collection.length) {
       return (
         <div className="grid grid-cols-1 h-full content-center">
           <div className="text-center text-white text-8xl">{collection.length}</div>
@@ -154,34 +196,37 @@ function IndexNewtab() {
       )
     }
   }
-  const suggest = () => {
-    if(suggestedTabs.length <= 1) {
+  const suggestRandom = () => {
+    if (suggestedTabs.length <= 1) {
       return;
-    }
-    const handleTabClick = async (e, tab) => {
-      e.preventDefault();
-      await chrome.tabs.update(tab.id, { active: true });
-      await chrome.windows.update(tab.windowId, { focused: true });
     }
 
     return (
       <>
-      <h4>Try closing one of these: </h4>
+        <h4>Try closing one of these randomly: </h4>
         <ul>
           {suggestedTabs.map((tab, i) =>
             <li key={i} className="my-3">
-              <a
-                href=""
-                onClick={event =>
-                  handleTabClick(event, tab)
-                }
-                style={{ 
-                  backgroundImage: `url("${tab.favIconUrl}")`
-                }}
-                className="p-0.5 pl-7 pr-2 font-medium hover:underline bg-slate-200 rounded-full bg-no-repeat bg-left bg-contain"
-              >
-                {tab.title}
-              </a>
+              <TabLink title={tab.title} tab={tab} />
+            </li>
+          )}
+        </ul>
+      </>
+    )
+  }
+
+  const suggestDuplicate = () => {
+    if (repeatTabs.length <= 1) {
+      return;
+    }
+
+    return (
+      <>
+        <h4>Try closing one of these duplicates: </h4>
+        <ul>
+          {repeatTabs.map((tabCount, i) =>
+            <li key={i} className="my-3">
+              <TabLink title={`(${tabCount.count}) ${tabCount.tab.title}`} tab={tabCount.tab} />
             </li>
           )}
         </ul>
@@ -204,7 +249,10 @@ function IndexNewtab() {
           </div>
         </div>
         <div className="mt-8 col-start-3 col-span-3">
-          {suggest()}
+          {suggestRandom()}
+        </div>
+        <div className="mt-8 col-start-3 col-span-3">
+          {suggestDuplicate()}
         </div>
         <div className="mt-8 col-start-3 col-span-3">
           {chartData &&
