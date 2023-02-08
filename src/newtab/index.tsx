@@ -69,8 +69,12 @@ export const chartOptions = {
 const TabLink = ({ title, tab }) => {
   const handleTabClick = async (e, tab) => {
     e.preventDefault();
+    const extensionTabs = await chrome.tabs.query({ title: "Tab Count Visualizer", url: "chrome://newtab/" })
     await chrome.tabs.update(tab.id, { active: true });
     await chrome.windows.update(tab.windowId, { focused: true });
+    for(let tab of extensionTabs) {
+      chrome.tabs.remove(tab.id);
+    }
   }
   return (
     <a
@@ -255,8 +259,8 @@ function IndexNewtab() {
           {suggestDuplicate()}
         </div>
         <div className="mt-8 col-start-3 col-span-3">
-          {chartData &&
-            <Line options={chartOptions} data={chartData} /> ||
+          {(chartData &&
+            <Line options={chartOptions} data={chartData} />) ||
             <p>Check back tomorrow for the chart</p>
           }
         </div>
