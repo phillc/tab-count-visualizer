@@ -223,7 +223,7 @@ function IndexNewtab() {
   }
 
   const suggestDuplicate = () => {
-    if (repeatTabs.length <= 1) {
+    if (repeatTabs.length == 0) {
       return;
     }
 
