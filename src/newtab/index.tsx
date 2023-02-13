@@ -51,6 +51,9 @@ export const chartOptions = {
       type: 'linear' as const,
       display: true,
       position: 'left' as const,
+      ticks: {
+        precision: 0,
+      },
     },
     y2: {
       type: 'linear' as const,
