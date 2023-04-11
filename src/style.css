@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.tab-link {
+    &:hover {
+        .tab-link-title {
+            filter: none;
+        }
+    }
+
+    .tab-link-title {
+        filter: blur(4px);
+    }
+}

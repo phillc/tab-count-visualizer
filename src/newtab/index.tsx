@@ -69,29 +69,31 @@ export const chartOptions = {
   },
 };
 
-const TabLink = ({ title, tab }) => {
+const TabLink = ({ prefix, title, tab }) => {
   const handleTabClick = async (e, tab) => {
     e.preventDefault();
     const extensionTabs = await chrome.tabs.query({ title: "Tab Count Visualizer", url: "chrome://newtab/" })
     await chrome.tabs.update(tab.id, { active: true });
     await chrome.windows.update(tab.windowId, { focused: true });
-    for(let tab of extensionTabs) {
+    for (let tab of extensionTabs) {
       chrome.tabs.remove(tab.id);
     }
   }
   return (
-    <a
-      href=""
-      onClick={event =>
-        handleTabClick(event, tab)
-      }
-      style={{
-        backgroundImage: `url("${tab.favIconUrl}")`
-      }}
-      className="p-0.5 pl-7 pr-2 font-medium hover:underline bg-slate-200 rounded-full bg-no-repeat bg-left bg-contain"
-    >
-      {title}
-    </a>
+    <div className="tab-link">
+      <a
+        href=""
+        onClick={event =>
+          handleTabClick(event, tab)
+        }
+        style={{
+          backgroundImage: `url("${tab.favIconUrl}")`
+        }}
+        className="tab-link inline-block max-w-full p-1 pl-9 pr-5 font-medium hover:underline bg-slate-200 rounded-full bg-no-repeat bg-left bg-contain truncate"
+      >
+        {prefix} <span className="tab-link-title">{title}</span>
+      </a>
+    </div>
   )
 }
 
@@ -210,7 +212,7 @@ function IndexNewtab() {
 
     return (
       <>
-        <h4>Try closing one of these randomly: </h4>
+        <h4>Consider visiting one of these tabs: </h4>
         <ul>
           {suggestedTabs.map((tab, i) =>
             <li key={i} className="my-3">
@@ -229,11 +231,11 @@ function IndexNewtab() {
 
     return (
       <>
-        <h4>Try closing one of these duplicates: </h4>
+        <h4>Consider visiting one of these duplicate tabs: </h4>
         <ul>
           {repeatTabs.map((tabCount, i) =>
             <li key={i} className="my-3">
-              <TabLink title={`(${tabCount.count}) ${tabCount.tab.title}`} tab={tabCount.tab} />
+              <TabLink prefix={`(${tabCount.count})`} title={tabCount.tab.title} tab={tabCount.tab} />
             </li>
           )}
         </ul>
@@ -264,7 +266,7 @@ function IndexNewtab() {
         <div className="mt-8 col-start-3 col-span-3">
           {(chartData &&
             <Line options={chartOptions} data={chartData} />) ||
-            <p>Check back tomorrow for the chart</p>
+            <p>Check back tomorrow for a chart of tabs over time</p>
           }
         </div>
       </div>
