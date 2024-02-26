@@ -117,8 +117,9 @@ function IndexNewtab() {
         .slice(0, 3)
       setSuggestedTabs(closable);
 
-      const storage = new Storage();
-      const data = await storage.get('history') || {};
+      const storage = new Storage({ area: "local" });
+      const syncStorage = new Storage();
+      const data = await storage.get('history') || syncStorage.get('history') || {};
       // console.log(">>>>", data)
       // data["2023-01-14"] = {
       //   maxTabs: 132,
